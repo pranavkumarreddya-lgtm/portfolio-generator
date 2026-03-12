@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus AI | Portfolio Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { --acc: #00d2ff; --bg: #050505; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
+
+        /* DOORS */
+        .door { position: fixed; top: 0; width: 50%; height: 100%; background: #111; z-index: 100; transition: 1.5s ease-in-out; border: 1px solid #222; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #333; }
+        .left-door { left: 0; } .right-door { right: 0; }
+        .open .left-door { transform: translateX(-100%); }
+        .open .right-door { transform: translateX(100%); }
+
+        /* LOGIN BOX */
+        .login-box { position: fixed; z-index: 110; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; padding: 30px; border-radius: 15px; border: 1px solid var(--acc); text-align: center; transition: 0.5s; }
+        .open .login-box { opacity: 0; pointer-events: none; }
+        
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
+        .btn { background: var(--acc); color: black; border: none; padding: 12px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
+        #captcha-box { background: #222; padding: 10px; margin: 10px 0; font-style: italic; letter-spacing: 5px; font-weight: bold; color: var(--acc); }
+
+        /* PORTFOLIO CONTENT */
+        .container { padding: 40px; display: none; max-width: 900px; margin: 0 auto; }
+        .open .container { display: block; }
+        .portfolio-sheet { background: white; color: black; padding: 50px; border-radius: 10px; margin-top: 20px; }
+        .header { border-bottom: 3px solid var(--acc); padding-bottom: 20px; margin-bottom: 30px; }
+    </style>
+</head>
+<body id="body">
+
+    <div class="door left-door">NEXUS</div>
+    <div class="door right-door">SYSTEM</div>
+
+    <div class="login-box" id="login">
+        <h2 style="color:var(--acc)">USER VERIFICATION</h2>
+        <div id="captcha-box"></div>
+        <input type="text" id="captcha-input" placeholder="Enter Captcha">
+        <button class="btn" onclick="checkCaptcha()">UNLOCK DOORS 🔓</button>
+    </div>
+
+    <div class="container">
+        <div id="setup-form">
+            <h2 style="color:var(--acc)">PORTFOLIO DETAILS</h2>
+            <input type="text" id="name" placeholder="Full Name">
+            <input type="text" id="role" placeholder="Job Role (e.g. Web Developer)">
+            <textarea id="skills" placeholder="Skills (comma separated)"></textarea>
+            <textarea id="projects" placeholder="Project Descriptions"></textarea>
+            <button class="btn" onclick="generate()">GENERATE PORTFOLIO ✨</button>
+        </div>
+
+        <div id="final-wrap" style="display:none">
+            <div id="portfolio-output" class="portfolio-sheet">
+                <div class="header">
+                    <h1 id="vName" style="margin:0; font-size:40px"></h1>
+                    <h3 id="vRole" style="color:#555"></h3>
+                </div>
+                <div class="section">
+                    <h4>TECHNICAL SKILLS</h4>
+                    <p id="vSkills"></p>
+                </div>
+                <div class="section">
+                    <h4>KEY PROJECTS</h4>
+                    <p id="vProjects" style="white-space: pre-line;"></p>
+                </div>
+            </div>
+            <button class="btn" onclick="downloadPDF()" style="margin-top:20px; background:#2ecc71">DOWNLOAD PDF 📄</button>
+        </div>
+    </div>
+
+    <script>
+        // Generate Captcha
+        let capText = Math.random().toString(36).substring(2, 8).toUpperCase();
+        document.getElementById('captcha-box').innerText = capText;
+
+        function checkCaptcha() {
+            let input = document.getElementById('captcha-input').value.toUpperCase();
+            if(input === capText) {
+                document.getElementById('body').classList.add('open');
+            } else {
+                alert("Wrong Captcha! Try again.");
+                capText = Math.random().toString(36).substring(2, 8).toUpperCase();
+                document.getElementById('captcha-box').innerText = capText;
+            }
+        }
+
+        function generate() {
+            document.getElementById('vName').innerText = document.getElementById('name').value;
+            document.getElementById('vRole').innerText = document.getElementById('role').value;
+            document.getElementById('vSkills').innerText = document.getElementById('skills').value;
+            document.getElementById('vProjects').innerText = document.getElementById('projects').value;
+            
+            document.getElementById('setup-form').style.display = 'none';
+            document.getElementById('final-wrap').style.display = 'block';
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('portfolio-output');
+            html2pdf().from(element).save('My_Portfolio.pdf');
+        }
+    </script>
+</body>
+</html>
