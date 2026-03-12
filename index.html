@@ -3,33 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus AI | Pro Portfolio</title>
+    <title>Nexus AI | Fixed Portfolio</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --gold: #c5a059; --bg: #0a0a0a; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; overflow-x: hidden; }
+        :root { --gold: #c5a059; --bg: #050505; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; overflow: hidden; }
 
-        /* REAL METALLIC DOORS */
-        .door { position: fixed; top: 0; width: 50%; height: 100%; background: #1a1a1a; z-index: 100; transition: 1.5s cubic-bezier(0.7, 0, 0.3, 1); border: 2px solid #333; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
+        /* DOORS WITH Z-INDEX FIX */
+        .door { position: fixed; top: 0; width: 50%; height: 100%; background: #1a1a1a; z-index: 200; transition: 1.5s cubic-bezier(0.7, 0, 0.3, 1); border: 2px solid #333; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 50px #000; }
         .left-door { left: 0; border-right: 4px solid var(--gold); }
         .right-door { right: 0; border-left: 4px solid var(--gold); }
-        .open .left-door { transform: translateX(-100%); }
-        .open .right-door { transform: translateX(100%); }
+        
+        /* When open, move doors out AND push them to background */
+        .open .left-door { transform: translateX(-100%); z-index: -1; }
+        .open .right-door { transform: translateX(100%); z-index: -1; }
 
         /* AUTH BOX */
-        .auth-card { position: fixed; z-index: 110; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 40px; border-radius: 20px; border: 1px solid var(--gold); text-align: center; width: 300px; transition: 0.5s; }
-        .open .auth-card { opacity: 0; pointer-events: none; }
+        .auth-card { position: fixed; z-index: 210; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; padding: 35px; border-radius: 20px; border: 1px solid var(--gold); text-align: center; width: 280px; transition: 0.5s; }
+        .open .auth-card { opacity: 0; pointer-events: none; visibility: hidden; }
         
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
-        .btn { background: var(--gold); color: black; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
-        #cap-disp { background: #000; padding: 10px; margin: 10px 0; font-weight: 900; letter-spacing: 8px; color: var(--gold); border: 1px dashed var(--gold); font-size: 20px; }
+        .btn { background: var(--gold); color: black; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; text-transform: uppercase; }
+        #cap-disp { background: #000; padding: 10px; margin: 10px 0; font-weight: 900; letter-spacing: 5px; color: var(--gold); border: 1px dashed var(--gold); font-size: 20px; }
 
-        /* PORTFOLIO CONTENT (Fixed Visibility) */
-        .main-container { padding: 40px 20px; display: none; max-width: 900px; margin: 0 auto; z-index: 10; position: relative; }
+        /* CONTENT CONTAINER */
+        .main-container { position: relative; z-index: 10; padding: 40px 20px; display: none; max-width: 800px; margin: 0 auto; height: 100vh; overflow-y: auto; }
         .open .main-container { display: block !important; }
 
-        .resume-page { background: white; color: #333; padding: 40px; border-radius: 5px; display: flex; gap: 30px; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .p-photo { width: 120px; height: 120px; background: #eee; border: 2px solid var(--gold); object-fit: cover; }
+        /* RESUME PREVIEW */
+        .resume-preview { background: white; color: #333; padding: 30px; border-radius: 8px; display: flex; gap: 20px; margin-top: 20px; }
+        .p-photo { width: 100px; height: 100px; background: #eee; border: 1px solid var(--gold); object-fit: cover; }
     </style>
 </head>
 <body id="master">
@@ -37,44 +40,46 @@
     <div class="door left-door"></div>
     <div class="door right-door"></div>
 
-    <div class="auth-card">
-        <h2 style="color:var(--gold); margin:0;">LOGIN</h2>
-        <input type="text" id="uname" placeholder="Username">
+    <div class="auth-card" id="auth-ui">
+        <h2 style="color:var(--gold); margin:0;">SECURE LOGIN</h2>
+        <input type="text" id="uname" placeholder="Enter Username">
         <div id="cap-disp"></div>
         <input type="text" id="cap-in" placeholder="Captcha">
-        <button class="btn" onclick="verify()">OPEN GATES 🔓</button>
+        <button class="btn" onclick="verify()">UNLOCK SYSTEM 🔓</button>
     </div>
 
     <div class="main-container">
-        <div id="f-box" style="background:#1a1a1a; padding:30px; border-radius:15px; border:1px solid #333;">
-            <h2 style="color:var(--gold)">DETAILS</h2>
-            <input type="text" id="fn" placeholder="Full Name">
-            <input type="text" id="fr" placeholder="Role (e.g. Developer)">
+        <div id="form-ui" style="background:#111; padding:30px; border-radius:15px; border:1px solid #222;">
+            <h2 style="color:var(--gold); margin-top:0;">PORTFOLIO BUILDER</h2>
+            <input type="text" id="fn" placeholder="Your Full Name">
+            <input type="text" id="fr" placeholder="Current Role (e.g. Student)">
             <input type="file" id="fp" accept="image/*" onchange="loadImg(event)">
-            <textarea id="fs" placeholder="Skills..."></textarea>
-            <textarea id="fpj" placeholder="Projects..."></textarea>
+            <p style="font-size: 12px; color: #888;">Upload Profile Photo ^</p>
+            <textarea id="fs" placeholder="Skills (Python, HTML, CSS...)"></textarea>
+            <textarea id="fpj" placeholder="Recent Projects..."></textarea>
             <button class="btn" onclick="build()">GENERATE PORTFOLIO ✨</button>
         </div>
 
-        <div id="r-wrap" style="display:none; margin-top:30px;">
-            <div id="r-pdf" class="resume-page">
-                <div style="flex:1; border-right:1px solid #ddd; padding-right:20px;">
+        <div id="result-ui" style="display:none; margin-top:30px;">
+            <div id="pdf-content" class="resume-preview">
+                <div style="flex:1; border-right:1px solid #eee; padding-right:15px;">
                     <img id="r-img" class="p-photo" src="">
-                    <h3 style="color:var(--gold)">SKILLS</h3>
-                    <div id="r-skills"></div>
+                    <h4 style="color:var(--gold)">SKILLS</h4>
+                    <p id="r-skills" style="font-size:12px;"></p>
                 </div>
-                <div style="flex:2;">
-                    <h1 id="r-name" style="margin:0"></h1>
-                    <p id="r-role" style="font-weight:bold; color:#666"></p>
-                    <h3 style="border-bottom:1px solid #eee">PROJECTS</h3>
-                    <p id="r-projects" style="white-space:pre-line;"></p>
+                <div style="flex:2.5;">
+                    <h1 id="r-name" style="margin:0; text-transform: uppercase;"></h1>
+                    <p id="r-role" style="font-weight:bold; color:#777;"></p>
+                    <h4 style="border-bottom:1px solid #ddd; padding-bottom:5px;">PROJECTS</h4>
+                    <p id="r-projects" style="white-space:pre-line; font-size:14px;"></p>
                 </div>
             </div>
-            <button class="btn" onclick="pdf()" style="background:#2ecc71">DOWNLOAD PDF 📄</button>
+            <button class="btn" onclick="downloadPdf()" style="background:#2ecc71; margin-bottom: 50px;">SAVE AS PDF 📄</button>
         </div>
     </div>
 
     <script>
+        // Captcha Setup
         let code = Math.random().toString(36).substring(2, 7).toUpperCase();
         document.getElementById('cap-disp').innerText = code;
 
@@ -83,7 +88,7 @@
             const c = document.getElementById('cap-in').value.toUpperCase();
             if(u && c === code) {
                 document.getElementById('master').classList.add('open');
-            } else { alert("Auth Failed!"); }
+            } else { alert("Access Denied! Check Name or Captcha."); }
         }
 
         let pData = "";
@@ -100,13 +105,14 @@
             document.getElementById('r-skills').innerText = document.getElementById('fs').value;
             if(pData) document.getElementById('r-img').src = pData;
             
-            document.getElementById('f-box').style.display = 'none';
-            document.getElementById('r-wrap').style.display = 'block';
+            document.getElementById('form-ui').style.display = 'none';
+            document.getElementById('result-ui').style.display = 'block';
         }
 
-        function pdf() {
-            const e = document.getElementById('r-pdf');
-            html2pdf().from(e).save('Portfolio.pdf');
+        function downloadPdf() {
+            const e = document.getElementById('pdf-content');
+            const opt = { margin: 0.5, filename: 'My_Portfolio.pdf', html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+            html2pdf().set(opt).from(e).save();
         }
     </script>
 </body>
